@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block main %}
-<form class="container text-center" method="GET" action="/search">
+<form class="container text-center mx-auto my-5 w-50" method="GET" action="/search">
     {{ form.hidden_tag() }}
-    <div class="form-group auth-form mx-auto">
+    <div class="form-group">
         {{ form.query.label }}
         {{ form.query(class_="form-control") }}
     </div>

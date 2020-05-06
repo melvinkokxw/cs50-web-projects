@@ -3,7 +3,7 @@
 {% block title %} {{ book["title"] }} {% endblock %}
 
 {% block main %}
-<div class="card">
+<div class="card mx-auto my-3 w-75">
 	<h5 class="card-header">
 		Title: {{ book["title"] }}
 	</h5>
@@ -21,7 +21,7 @@
 	</div>
 </div>
 
-<form class="container text-center" method="POST" action="/review">
+<form class="container text-center mx-auto my-3 w-75" method="POST" action="/review">
 	{{ form.hidden_tag() }}
 	<div class="form-group mx-auto">
         {{ form.rating.label }} 
@@ -38,7 +38,7 @@
 	<button type="submit" class="btn btn-primary">Submit Review</button>
 </form>
 
-<div class="card-columns">
+<div class="card-columns my-3">
 	{% for review in reviews %}
 	<div class="card">
 		<div class="card-body">
@@ -50,7 +50,11 @@
 		</div>
 	</div>
 	{% else %}
-	<a href="#" class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">No items found</a>
+	<div class="card">
+		<div class="card-body">
+			<h5 class="card-title">No reviews found yet</h5>
+		</div>
+	</div>
 	{% endfor %}
 </div>
 {% endblock %}
