@@ -2,7 +2,7 @@ import requests
 import json
 import os
 
-from flask import Blueprint, redirect, url_for, session, render_template, request, abort
+from flask import Blueprint, redirect, url_for, session, render_template, request, abort, flash
 from psycopg2.extensions import AsIs
 from application import db
 from .forms import SearchForm, ReviewForm
@@ -12,29 +12,38 @@ bp = Blueprint("main", __name__)
 
 @bp.route("/")
 def index():
+    # Only allowed logged in users
     if "username" not in session:
+        flash("You have to be logged in to see this page", "danger")
         return redirect(url_for("auth.login"))
 
+    # Show search page
     form = SearchForm()
     return render_template("main/index.html", form=form)
 
 
 @bp.route("/search")
 def search():
+    # Only allowed logged in users
     if "username" not in session:
+        flash("You have to be logged in to see this page", "danger")
         return redirect(url_for("auth.login"))
 
+    # Generate query values
     form = SearchForm(request.args)
     query = ''.join(('%', form.query.data, '%'))
     category = form.category.data
 
+    # Search for query in database and render
     results = db.execute("SELECT * FROM books WHERE :category ILIKE :query", {"category": AsIs(category), "query": query}).fetchall()
     return render_template("main/search.html", results=results)
 
 
 @bp.route("/book/<string:isbn>")
 def book(isbn):
+    # Only allowed logged in users
     if "username" not in session:
+        flash("You have to be logged in to see this page", "danger")
         return redirect(url_for("auth.login"))
 
     form = ReviewForm()
@@ -42,7 +51,8 @@ def book(isbn):
     form.username.data = session["username"]
     book = db.execute("SELECT * FROM books WHERE isbn=:isbn", {'isbn': isbn}).fetchone()
     if book is None:
-        return "Book not found"
+        flash("Book not found", "warning")
+        return redirect(url_for("main.index"))
     reviews = db.execute("SELECT * FROM reviews WHERE isbn=:isbn", {'isbn': isbn}).fetchall()
 
     goodreads = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("GOODREADS_KEY"), "isbns": isbn})
@@ -54,7 +64,9 @@ def book(isbn):
 
 @bp.route("/review", methods=["POST"])
 def review():
+    # Only allowed logged in users
     if "username" not in session:
+        flash("You have to be logged in to see this page", "danger")
         return redirect(url_for("auth.login"))
 
     form = ReviewForm()
@@ -66,9 +78,11 @@ def review():
         review = form.review.data
 
         if db.execute("SELECT * FROM reviews WHERE isbn=:isbn and username=:username", {'isbn': isbn, 'username': username}).fetchone() is not None:
-            return "You can only review each book once"
-        db.execute("INSERT INTO reviews (isbn, username, rating, review) VALUES (:isbn, :username, :rating, :review)", {'isbn': isbn, 'username': username, 'rating': rating, 'review': review})
-        db.commit()
+            flash("You can only review each book once", "danger")
+        else:
+            db.execute("INSERT INTO reviews (isbn, username, rating, review) VALUES (:isbn, :username, :rating, :review)", {'isbn': isbn, 'username': username, 'rating': rating, 'review': review})
+            db.commit()
+            flash("Review submitted", "primary")
         return redirect(url_for("main.book", isbn=isbn))
 
 
