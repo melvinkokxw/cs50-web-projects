@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+<form class="container text-center" method="GET" action="/search">
+    {{ form.hidden_tag() }}
+    <div class="form-group auth-form mx-auto">
+        {{ form.query.label }}
+        {{ form.query(class_="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.category.label }}
+        {{ form.category(class_="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search Results
+{% endblock %}
+
+{% block main %}
+<div class="list-group">
+    {% for book in results %}
+    <a href="{{ url_for('main.book', isbn=book['isbn']) }}" class="list-group-item list-group-item-action">
+        <h5>Title: {{ book["title"] }}</h5>
+        <p>
+            ISBN: {{ book["isbn"] }} <br>
+            Author: {{ book["author"] }} <br>
+            Year published: {{ book["year"] }} <br>
+        </p>
+    </a>
+    {% else %}
+    <a href="#" class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">No items found</a>
+    {% endfor %}
+</div>
+{% endblock %}

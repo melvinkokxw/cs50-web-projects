@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %} {{ book["title"] }} {% endblock %}
+
+{% block main %}
+<div class="card">
+	<h5 class="card-header">
+		Title: {{ book["title"] }}
+	</h5>
+	<div class="card-body">
+		<h6 class="card-title"></h6>
+		<p class="card-text">
+            Author: {{ book["author"] }} <br>
+            ISBN: {{ book["isbn"] }} <br>
+			Year published: {{ book["year"] }}
+		</p>
+	</div>
+</div>
+
+<form class="container text-center" method="POST" action="/review">
+	{{ form.hidden_tag() }}
+	<div class="form-group mx-auto">
+        {{ form.rating.label }} 
+        {%for option in form.rating %}
+		<div class="form-check form-check-inline">
+            {{ option(class_="form-check-input") }}
+            {{ option.label(class_="form-check-label") }}
+		</div>
+		{% endfor %}
+	</div>
+	<div class="form-group mx-auto">
+		{{ form.review.label }} {{ form.review(class_="form-control") }}
+	</div>
+	<button type="submit" class="btn btn-primary">Submit Review</button>
+</form>
+
+<div class="card-columns">
+	{% for review in reviews %}
+	<div class="card">
+		<div class="card-body">
+			<h5 class="card-title">Rating: {{ review["rating"] }}</h5>
+			<p class="card-text">{{ review["review"] }}</p>
+			<p class="card-text">
+				<small class="text-muted">By user {{ review["username"] }}</small>
+			</p>
+		</div>
+	</div>
+	{% else %}
+	<a href="#" class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">No items found</a>
+	{% endfor %}
+</div>
+{% endblock %}
